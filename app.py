@@ -9,8 +9,6 @@ app = Flask(__name__)
 def index():
     return 'Index Page'
 
-
-
 @app.route('/lyrics', methods=['POST'])
 def get_lyrics():
     incoming_msg = request.values.get('Body', '').lower()
