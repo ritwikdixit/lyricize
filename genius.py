@@ -46,8 +46,18 @@ last_msg = ''
 # returns what's needed from song
 # line verse or full
 def get_from_song(lyrics, req='line'):
-    lines = lyrics.split('\n')[2:]
-    verses = lyrics.split('\n\n')
+    verses = lyrics.split('[')
+
+    new_verses = []
+    # verse filtration
+    for verse in verses:
+        if len(verse) < 100 or 'Verse' not in verse:
+            continue
+        new_verses.append(verse)
+    verses =  new_verses
+    lines = '\n'.join(verses).split('\n')
+    # print(verses)
+
     if req == 'line':
         i = randidx(lines)
         while not lines[i].strip() or '[' in lines[i]:
@@ -56,10 +66,12 @@ def get_from_song(lyrics, req='line'):
     elif req == 'verse':
         return verses[randidx(verses)]
     elif req.startswith('verse_') and len(req) >= 7:
-        if req[6:].isnumeric() and int(req[6:]) < len(verses):
-            return verses[int(req[6:])]
+        if req[6:].isnumeric() and int(req[6:])-1 < len(verses): # 1 -indexed
+            return verses[int(req[6:])-1]
         else:
             return 'not a valid verse #'
+    elif req == 'lyrics':
+        return lyrics
  
     return 'Invalid (line/verse/verse_[i])'
 
@@ -73,8 +85,6 @@ def get_lyrics(incoming):
     words = incoming.split()
     last_msg = incoming
 
-    if len(words) < 4:
-        return 'invalid format (length req)'
     query = ' '.join(words[3:])
     prefix = ''
     if words[2] == 'song':
